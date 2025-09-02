@@ -1,0 +1,10 @@
+opencv-python
+numpy
+pandas
+tensorflow
+keras
+streamlit
+nltk
+matplotlib
+googletrans==4.0.0-rc1
+scikit-learn
