@@ -1,20 +1,16 @@
-# src/predict.py
-import json
 import numpy as np
+import cv2
+import joblib
 from tensorflow.keras.models import load_model
-from src.data_loader import load_sequence
 
+model = load_model('models/sign_model.h5')
+label_map = joblib.load('models/label_map.pkl')
+inv_label_map = {v: k for k, v in label_map.items()}
 
-def load_label_map(path='models/label_map.json'):
-    with open(path,'r') as f:
-        labels = json.load(f)
-    return labels
-
-
-def predict_sequence(frame_paths, model_path='models/best_model.h5', max_len=30, target_size=(64,64)):
-    seq = load_sequence(frame_paths, target_size=target_size, max_len=max_len)
-    seq = np.expand_dims(seq, axis=0)
-    model = load_model(model_path)
-    preds = model.predict(seq)
-    idx = int(np.argmax(preds, axis=1)[0])
-    return idx, preds[0]
+def predict_image(img_path):
+    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    img = cv2.resize(img, (64,64))
+    img = img.reshape(1,64,64,1) / 255.0
+    pred = model.predict(img)
+    label = inv_label_map[np.argmax(pred)]
+    return label
